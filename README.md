@@ -5,24 +5,24 @@ The name refers to Argus Panoptes, a mythical giant with one hundred eyes who ne
 
 ---
 
-## 🔐 Description
+## Description
 
 > This project was created as a graduation project to demonstrate core IDS concepts using the C programming language.  
 > It features packet sniffing, detection by known attack signatures, and simple anomaly heuristics.
 
 ---
 
-## 🛠️ Features
+## Features
 
-- 📡 Captures live network traffic using `libpcap`
-- 🧾 Signature-based detection from a local database (`signatures.db`)
-- 🔍 Basic anomaly detection (suspicious sizes, uncommon protocols, etc.)
-- ⚠️ Responds to detections with logging and console alerts
-- ⚙️ Configurable via `config.ini`
+- Captures live network traffic using `libpcap`
+- Signature-based detection from a local database (`signatures.db`)
+- Basic anomaly detection (suspicious sizes, uncommon protocols, etc.)
+- Responds to detections with logging and console alerts
+- Configurable via `config.ini`
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 argus-ids/
 ├── main.c
 ├── network_monitor.c
@@ -42,14 +42,14 @@ argus-ids/
 └── README.md
 ---
 
-## 🧰 Dependencies
+## Dependencies
 
 - GCC compiler
 - `libpcap` development library
 
 ---
 
-## ⚙️ Installation & Build
+## Installation & Build
 
 ### Install libpcap (Arch Linux)
 
