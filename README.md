@@ -23,6 +23,7 @@ The name refers to Argus Panoptes, a mythical giant with one hundred eyes who ne
 ---
 
 ## Project Structure
+'''text
 argus-ids/
 ├── main.c
 ├── network_monitor.c
