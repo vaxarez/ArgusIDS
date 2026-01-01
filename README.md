@@ -59,6 +59,12 @@ argus-ids/
 sudo pacman -Syu
 sudo pacman -S libpcap-dev
 ```
+Or Debian (and debian based distro's)
+```bash
+sudo apt update
+sudo apt upgrade
+sudo apt install libpcap-dev
+```
 ---
 
 ## Build the project
