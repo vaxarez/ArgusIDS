@@ -22,28 +22,6 @@ The name refers to Argus Panoptes, a mythical giant with one hundred eyes who ne
 
 ---
 
-## Project Structure
-```text
-argus-ids/
-├── main.c
-├── network_monitor.c
-├── network_monitor.h
-├── signature_detection.c
-├── signature_detection.h
-├── anomaly_detection.c
-├── anomaly_detection.h
-├── response_handler.c
-├── response_handler.h
-├── utils.c
-├── utils.h
-├── signatures.db
-├── config.ini
-├── log.txt
-├── Makefile
-└── README.md
-```
----
-
 ## Dependencies
 
 - GCC compiler
