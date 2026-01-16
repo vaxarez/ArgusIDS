@@ -49,3 +49,9 @@ sudo apt install libpcap-dev
 ```bash
 make
 ```
+---
+
+## Launch
+```bash
+sudo ./ids
+```
