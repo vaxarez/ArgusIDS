@@ -1,12 +1,23 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -Wextra -Wshadow -Iinclude
+LDFLAGS = -lpcap
 
-OBJS = main.o network_monitor.o signature_detection.o utils.o
+SRC_DIR = src
+OBJ_DIR = build
 
-all: daemon
+SRC = $(wildcard $(SRC_DIR)/*.c)
+OBJ = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
 
-daemon: $(OBJS)
-	$(CC) $(CFLAGS) -o daemon $(OBJS) -lpcap
+TARGET = argus
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	$(CC) $(OBJ) -o $(TARGET) $(LDFLAGS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o daemon
+	rm -rf $(OBJ_DIR) $(TARGET)
