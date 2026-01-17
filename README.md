@@ -53,5 +53,5 @@ make
 
 ## Launch
 ```bash
-sudo ./ids
+sudo ./argus
 ```
