@@ -34,13 +34,10 @@ The name refers to Argus Panoptes, a mythical giant with one hundred eyes who ne
 ### Install libpcap (Arch Linux)
 
 ```bash
-sudo pacman -Syu
 sudo pacman -S libpcap-dev
 ```
 Or Debian (and debian based distro's)
 ```bash
-sudo apt update
-sudo apt upgrade
 sudo apt install libpcap-dev
 ```
 ---
