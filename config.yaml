@@ -1,0 +1,2 @@
+interface: wlan0
+signature_file: signatures.db
