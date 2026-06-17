@@ -1,8 +1,3 @@
-/*
- * ArgusIDS — basic Linux network intrusion detection system.
- * Requires root (CAP_NET_RAW). Linux only.
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
