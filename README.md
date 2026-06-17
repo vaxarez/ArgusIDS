@@ -1,6 +1,6 @@
 # ArgusIDS
 
-A minimal functional network intrusion detection system (IDS) for Linux. ArgusIDS captures live traffic, parses IPv4 packets, and raises real alerts for port scans, SYN floods, ICMP floods, and connections to high-risk destination ports.
+A minimal functional network intrusion detection system (IDS) for Linux. ArgusIDS captures live traffic, parses IPv4 packets, and raises real alerts for port scans, SYN/UDP/ICMP floods, and connections to high-risk destination ports.
 
 Designed to deploy anywhere Linux runs — from legacy bare-metal servers to modern cloud VMs — with zero runtime dependencies, a tiny footprint, and a single binary.
 
@@ -18,9 +18,11 @@ ArgusIDS is not a drop-in replacement for Snort or Suricata when you need deep p
 ## Features
 
 - **Live packet capture** via raw `AF_PACKET` sockets on one interface or all interfaces
-- **IPv4 parsing** for Ethernet, IP, TCP, and UDP headers
-- **Four active detection rules** with sliding time windows and per-source tracking
-- **Dual output** — alerts to the terminal and append-only log file
+- **IPv4 parsing** for Ethernet (including 802.1Q VLAN), IP, TCP, and UDP headers
+- **Five active detection rules** with sliding time windows and per-source tracking
+- **Dual output** — alerts to the terminal and append-only log file (`-q` for log-only)
+- **Graceful shutdown** — responds to SIGTERM within one second (no hang waiting for traffic)
+- **Host table eviction** — recycles stale entries when tracking 256+ sources
 - **Tunable thresholds** in one header (`include/config.h`), rebuild to apply
 
 ## Detection Rules
@@ -29,6 +31,7 @@ ArgusIDS is not a drop-in replacement for Snort or Suricata when you need deep p
 |-------|---------|-------------------|
 | **Port scan** | One source probes many distinct destination ports | 15 unique ports within 60 seconds |
 | **SYN flood** | High rate of TCP SYN packets (no ACK) from one host | 40 SYN packets within 10 seconds |
+| **UDP flood** | High rate of UDP packets from one host | 80 packets within 10 seconds |
 | **ICMP flood** | High rate of ICMP from one host | 50 packets within 10 seconds |
 | **Suspicious port** | Traffic to a known high-risk destination port | One alert per source every 30 seconds |
 
@@ -98,6 +101,8 @@ sudo ./build/argusids [options]
 |--------|-------------|
 | `-i <iface>` | Capture on a specific interface (e.g. `eth0`, `enp0s3`). Omit for all interfaces. |
 | `-l <file>` | Alert log path (default: `alerts.log`) |
+| `-q` | Quiet mode — write alerts to log file only (recommended for systemd) |
+| `-V` | Print version and exit |
 | `-h` | Show help |
 
 ### Examples
@@ -114,6 +119,12 @@ Bind to one interface and log to `/var/log`:
 sudo ./build/argusids -i eth0 -l /var/log/argusids.log
 ```
 
+Run quietly under systemd (alerts go to log file only):
+
+```bash
+sudo ./build/argusids -i eth0 -l /var/log/argusids.log -q
+```
+
 Run without full root by granting capture capability once:
 
 ```bash
@@ -126,10 +137,10 @@ Press **Ctrl+C** to stop. Shutdown prints session stats: packets analyzed, alert
 ### Sample output
 
 ```
-ArgusIDS — Linux IDS
+ArgusIDS 1.1.0 — Linux IDS
 Interface: eth0
 Alert log: alerts.log
-Rules: port scan, SYN flood, ICMP flood, suspicious ports
+Rules: port scan, SYN flood, UDP flood, ICMP flood, suspicious ports
 Press Ctrl+C to stop.
 
 [!] ALERT [PORT_SCAN] 2026-06-17 14:32:01
@@ -160,7 +171,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/argusids -i eth0 -l /var/log/argusids.log
+ExecStart=/usr/local/bin/argusids -i eth0 -l /var/log/argusids.log -q
 Restart=on-failure
 RestartSec=5
 
@@ -185,10 +196,14 @@ Edit `include/config.h` and rebuild:
 #define ARGUS_PORT_SCAN_WINDOW      60   /* in seconds */
 #define ARGUS_SYN_FLOOD_THRESHOLD   40
 #define ARGUS_SYN_FLOOD_WINDOW      10
+#define ARGUS_UDP_FLOOD_THRESHOLD   80
+#define ARGUS_UDP_FLOOD_WINDOW      10
 #define ARGUS_ICMP_FLOOD_THRESHOLD  50
 #define ARGUS_ICMP_FLOOD_WINDOW     10
+#define ARGUS_SUSP_COOLDOWN         30   /* seconds between suspicious-port alerts */
 #define ARGUS_MAX_TRACKED_HOSTS     256
 #define ARGUS_MAX_PORTS_PER_HOST    64
+#define ARGUS_RECV_TIMEOUT_SEC      1    /* shutdown responsiveness */
 #define ARGUS_DEFAULT_LOG           "alerts.log"
 ```
 
@@ -211,7 +226,7 @@ include/
 
 **Data flow:** `capture_recv` → `packet_parse` → `detector_analyze` → `alert_log`
 
-The detector tracks up to 256 source hosts in memory. Non-IPv4 traffic and non-TCP/UDP/ICMP IPv4 packets are skipped after parse.
+The detector tracks up to 256 source hosts in memory, evicting the least-recently-seen host when the table is full. VLAN-tagged frames (802.1Q) are parsed. Non-IPv4 traffic and non-TCP/UDP/ICMP IPv4 packets are skipped after parse.
 
 ## Design scope
 

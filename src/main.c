@@ -22,6 +22,8 @@ static void usage(const char *prog) {
             "Usage: %s [options]\n"
             "  -i <iface>   capture on interface (default: all)\n"
             "  -l <file>    write alerts to log file (default: %s)\n"
+            "  -q           quiet mode (log file only, no console output)\n"
+            "  -V           show version and exit\n"
             "  -h           show this help\n"
             "\nRun as root: sudo %s\n",
             prog, ARGUS_DEFAULT_LOG, prog);
@@ -30,12 +32,17 @@ static void usage(const char *prog) {
 int main(int argc, char **argv) {
     const char *iface = NULL;
     const char *log_path = ARGUS_DEFAULT_LOG;
+    int quiet = 0;
     int opt;
 
-    while ((opt = getopt(argc, argv, "i:l:h")) != -1) {
+    while ((opt = getopt(argc, argv, "i:l:qhV")) != -1) {
         switch (opt) {
         case 'i': iface = optarg; break;
         case 'l': log_path = optarg; break;
+        case 'q': quiet = 1; break;
+        case 'V':
+            printf("ArgusIDS %s\n", ARGUS_VERSION);
+            return 0;
         case 'h':
             usage(argv[0]);
             return 0;
@@ -55,13 +62,15 @@ int main(int argc, char **argv) {
     }
 
     detector_init();
-    alert_init(log_path);
+    alert_init(log_path, quiet);
 
-    printf("ArgusIDS — Linux IDS\n");
-    printf("Interface: %s\n", iface ? iface : "all");
-    printf("Alert log: %s\n", log_path);
-    printf("Rules: port scan, SYN flood, ICMP flood, suspicious ports\n");
-    printf("Press Ctrl+C to stop.\n\n");
+    if (!quiet) {
+        printf("ArgusIDS %s — Linux IDS\n", ARGUS_VERSION);
+        printf("Interface: %s\n", iface ? iface : "all");
+        printf("Alert log: %s\n", log_path);
+        printf("Rules: port scan, SYN flood, UDP flood, ICMP flood, suspicious ports\n");
+        printf("Press Ctrl+C to stop.\n\n");
+    }
 
     unsigned char buffer[ARGUS_SNAP_LEN];
     unsigned long count = 0;
@@ -83,13 +92,14 @@ int main(int argc, char **argv) {
         if (detector_analyze(&pkt, &alert))
             alert_log(&alert);
 
-        if (count % 500 == 0) {
+        if (!quiet && count % 500 == 0) {
             printf("[*] %lu IP packets analyzed\r", count);
             fflush(stdout);
         }
     }
 
-    printf("\nShutting down...\n");
+    if (!quiet)
+        printf("\nShutting down...\n");
     capture_close(cap);
     alert_shutdown();
     detector_cleanup();

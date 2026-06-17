@@ -9,7 +9,8 @@ typedef enum {
     ALERT_PORT_SCAN,
     ALERT_SYN_FLOOD,
     ALERT_SUSPICIOUS_PORT,
-    ALERT_ICMP_FLOOD
+    ALERT_ICMP_FLOOD,
+    ALERT_UDP_FLOOD
 } alert_type_t;
 
 typedef struct {

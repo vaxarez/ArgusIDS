@@ -1,6 +1,8 @@
 #ifndef ARGUS_CONFIG_H
 #define ARGUS_CONFIG_H
 
+#define ARGUS_VERSION               "1.1.0"
+
 /* Detection thresholds — edit to tune sensitivity */
 #define ARGUS_PORT_SCAN_THRESHOLD   15
 #define ARGUS_PORT_SCAN_WINDOW      60   /* seconds */
@@ -8,11 +10,15 @@
 #define ARGUS_SYN_FLOOD_WINDOW      10
 #define ARGUS_ICMP_FLOOD_THRESHOLD  50
 #define ARGUS_ICMP_FLOOD_WINDOW     10
+#define ARGUS_UDP_FLOOD_THRESHOLD   80
+#define ARGUS_UDP_FLOOD_WINDOW      10
+#define ARGUS_SUSP_COOLDOWN         30   /* seconds between suspicious-port alerts */
 
 #define ARGUS_MAX_TRACKED_HOSTS     256
 #define ARGUS_MAX_PORTS_PER_HOST    64
 
 #define ARGUS_SNAP_LEN              65536
+#define ARGUS_RECV_TIMEOUT_SEC      1    /* lets SIGTERM exit without waiting for traffic */
 #define ARGUS_DEFAULT_LOG           "alerts.log"
 
 /* Suspicious destination ports (0 = end of list) */

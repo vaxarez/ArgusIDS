@@ -4,6 +4,10 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+#define ETHERTYPE_VLAN  0x8100
+#define ETHERTYPE_QINQ  0x88A8
+#define ETHERTYPE_IPV4  0x0800
+
 static uint16_t read_u16(const uint8_t *p) {
     return (uint16_t)((p[0] << 8) | p[1]);
 }
@@ -31,10 +35,20 @@ int packet_parse(const uint8_t *buf, size_t len, parsed_packet_t *out) {
     }
     out->eth.ethertype = read_u16(buf + 12);
 
-    if (out->eth.ethertype != 0x0800)
+    size_t off = ETH_HDR_LEN;
+    uint16_t ethertype = out->eth.ethertype;
+
+    /* 802.1Q / Q-in-Q: peel one VLAN tag */
+    if (ethertype == ETHERTYPE_VLAN || ethertype == ETHERTYPE_QINQ) {
+        if (len < off + 4)
+            return -1;
+        ethertype = read_u16(buf + off + 2);
+        off += 4;
+    }
+
+    if (ethertype != ETHERTYPE_IPV4)
         return 0;
 
-    size_t off = ETH_HDR_LEN;
     if (len < off + IP_HDR_MIN)
         return -1;
 
