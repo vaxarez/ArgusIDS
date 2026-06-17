@@ -244,7 +244,7 @@ For a server or edge node that needs dependable baseline IDS coverage without ma
 
 ## License
 
-See the repository for license information.
+No License.
 
 ## Contributing
 
