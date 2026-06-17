@@ -1,0 +1,16 @@
+# Build output
+build/
+
+# Compiled objects and binaries (anywhere in tree)
+*.o
+*.a
+argusids
+
+# Runtime logs
+alerts.log
+*.log
+
+# Editor / OS
+*.swp
+*~
+.DS_Store
